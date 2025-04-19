@@ -1,0 +1,19 @@
+{
+  "name": "end-of-study-project",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "start": "nodemon app"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "joi": "^17.13.3",
+    "joi-password-complexity": "^5.2.0",
+    "mongoose": "^8.13.2",
+    "nodemon": "^3.1.9"
+  }
+}
