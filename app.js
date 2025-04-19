@@ -23,14 +23,16 @@ app.use(express.urlencoded({ extended: false }));
 
 // Login route form
 app.get("/", (req, res) => {
-  res.render("index")
+  res.render("index");
 });
 
 // Routes
+app.use("/api/user", require("./routes/user"));
 app.use("/api/projects", require("./routes/project"));
 app.use("/api/proposals", require("./routes/proposal"));
 app.use("/api/final-selections", require("./routes/finalSelection"));
 app.use("/api/auth", require("./routes/auth"));
+
 // Error handler middleware
 app.use(notFound);
 app.use(errorHandler);

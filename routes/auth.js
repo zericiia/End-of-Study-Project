@@ -31,8 +31,10 @@ router.post("/Register", async (req, res) => {
   }
 
   try {
-    //   check for dup emails
-    let user = await User.findOne({ username: req.body.username });
+    // Check if username or email already exists
+    let user = await User.findOne({
+      $or: [{ username: req.body.username }, { email: req.body.email }],
+    });
     if (user) {
       return res.status(400).json({ message: "This user already exists" });
     }
