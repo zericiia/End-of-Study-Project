@@ -90,7 +90,9 @@ router.post("/login", async (req, res) => {
   try {
     const user = await User.findOne({ username: req.body.username });
     if (!user) {
-      res.status(404).json({ message: "the username or password is wrong" });
+      return res
+        .status(401)
+        .json({ message: "the username or password is wrong" });
     }
 
     const matchinPasswrod = await bcrypt.compare(
@@ -98,7 +100,9 @@ router.post("/login", async (req, res) => {
       user.password
     );
     if (!matchinPasswrod) {
-      res.status(404).json({ message: "the username or password is wrong" });
+      return res
+        .status(401)
+        .json({ message: "the username or password is wrong" });
     }
     const token = user.generateToken();
 
