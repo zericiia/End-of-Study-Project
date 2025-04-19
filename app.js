@@ -1,6 +1,7 @@
 const express = require("express");
 const path = require("path");
 const { ConnectToLocalDB, ConnectToOnlineDB } = require("./config/db/localDB");
+const cookieParser = require("cookie-parser");
 
 // mdlw
 const logger = require("./middlewares/logger");
@@ -15,6 +16,7 @@ const app = express();
 app.use(express.static(path.resolve(__dirname, "pages")));
 
 // apply middleware
+app.use(cookieParser());
 app.use(express.json());
 app.use(logger);
 app.set("view engine", "ejs");

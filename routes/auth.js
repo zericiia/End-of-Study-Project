@@ -51,12 +51,17 @@ router.post("/Register", async (req, res) => {
 
     const result = await user.save();
 
-    // gen token
+    // gen token and cookie
     const token = user.generateToken();
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict", //  CSRF protection
+      maxAge: 1000 * 60 * 60 * 24, // 1 day
+    });
 
     // Exclude password from response
     const { password, ...userData } = result._doc;
-    userData.token = token;
 
     res.status(201).json(userData); // for testing
     // res.redirect("/homePage");
@@ -107,13 +112,21 @@ router.post("/login", async (req, res) => {
         .json({ message: "the username or password is wrong" });
     }
     const token = user.generateToken();
-
+    // Set cookie with token
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict", //  CSRF protection
+      maxAge: 1000 * 60 * 60 * 24, // 1 day
+    });
     // Exclude password from response
     const { password, ...userData } = user._doc;
-    userData.token = token;
 
     // Send response
-    res.status(200).json(userData);
+    res.status(200).json({
+      message: "Login successful",
+      user: userData,
+    });
   } catch (error) {
     console.error("Database error:", error);
     res.status(500).json({ message: "An internal server error occurred" });
