@@ -23,19 +23,20 @@ app.use(express.urlencoded({ extended: false }));
 
 // Login route form
 app.get("/", (req, res) => {
-  res.sendFile(path.resolve(__dirname, "pages", "login.html"));
+  res.render("index")
 });
 
 // Routes
 app.use("/api/projects", require("./routes/project"));
 app.use("/api/proposals", require("./routes/proposal"));
 app.use("/api/final-selections", require("./routes/finalSelection"));
+app.use("/api/auth", require("./routes/auth"));
 // Error handler middleware
 app.use(notFound);
 app.use(errorHandler);
 
 // Start server
-const Port = process.env.PORT || 5000;
+const Port = process.env.PORT || 7600;
 app.listen(Port, () => {
   console.log(
     `Server is running in ${process.env.NODE_ENV || "development"} mode`

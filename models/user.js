@@ -36,7 +36,7 @@ const userSchema = new mongoose.Schema(
     role: {
       type: String,
       enum:["Admin","Teacher","Student"],
-      default: Student,
+      default: "Student",
     },
   },
   { timestamps: true }
@@ -54,7 +54,7 @@ const complexityOptions = {
 // Generate Token
 userSchema.methods.generateToken = function () {
   return jwt.sign(
-    { id: this._id, isAdmin: this.isAdmin },
+    { id: this._id, role: this.role ,username:this.username },
     process.env.JWT_SECRET,
     { expiresIn: "1d" }
   );
@@ -64,8 +64,8 @@ userSchema.methods.generateToken = function () {
 function validateUpdateUser(obj) {
   const schema = Joi.object({
     email: Joi.string().trim().min(5).max(100).email(),
-    username: Joi.string().trim().min(2).max(200),
-    fullname: Joi.string().trim().min(2).max(200),
+    fullname: Joi.string().trim().min(5).max(200),
+    username: Joi.string().trim().min(5).max(200),
     password: passwordComplexity(complexityOptions)
   });
   return schema.validate(obj);
@@ -74,8 +74,8 @@ function validateUpdateUser(obj) {
 function validateRegisterUser(obj) {
   const schema = Joi.object({
     email: Joi.string().trim().min(5).max(100).required().email(),
-    fullname: Joi.string().trim().min(2).max(200).required(),
-    username: Joi.string().trim().min(2).max(200).required(),
+    fullname: Joi.string().trim().min(5).max(200).required(),
+    username: Joi.string().trim().min(5).max(200).required(),
     password: passwordComplexity(complexityOptions).required(),
   });
   return schema.validate(obj);
@@ -83,8 +83,8 @@ function validateRegisterUser(obj) {
 // validate Login user
 function validateLoginUser(obj) {
   const schema = Joi.object({
-    username: Joi.string().trim().min(2).max(200).required(),
-    password: Joi.string().trim().min(6).required(),
+    username: Joi.string().trim().min(5).max(200).required(),
+    password: passwordComplexity(complexityOptions).required(),
   });
   return schema.validate(obj);
 }
