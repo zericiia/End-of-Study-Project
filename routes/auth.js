@@ -15,7 +15,7 @@ const {
  *
  **/
 router.post("/Register", async (req, res) => {
-    // check for empty req.body
+  // check for empty req.body
   if (!req.body || Object.keys(req.body).length === 0) {
     return res
       .status(400)
@@ -64,4 +64,53 @@ router.post("/Register", async (req, res) => {
   }
 });
 
+/**
+ * @desc  Register New User
+ * @route /api/auth/login
+ * @method post
+ * @access public
+ *
+ **/
+router.post("/login", async (req, res) => {
+  // check for empty req.body
+  if (!req.body || Object.keys(req.body).length === 0) {
+    return res
+      .status(400)
+      .json({ message: "Request body is empty or missing" });
+  }
+  //   validate login input
+  const { error } = validateLoginUser(req.body);
+  if (error) {
+    return res.status(400).json({
+      message: "Validation failed",
+      errors: error.details.map((detail) => detail.message),
+    });
+  }
+
+  try {
+    const user = await User.findOne({ username: req.body.username });
+    if (!user) {
+      res.status(404).json({ message: "the username or password is wrong" });
+    }
+
+    const matchinPasswrod = await bcrypt.compare(
+      req.body.password,
+      user.password
+    );
+    if (!matchinPasswrod) {
+      res.status(404).json({ message: "the username or password is wrong" });
+    }
+    const token = user.generateToken();
+
+    // Exclude password from response
+    const { password, ...userData } = user._doc;
+    userData.token = token;
+
+    // Send response
+    res.status(200).json(userData);
+  } catch (error) {
+    console.error("Database error:", error);
+    res.status(500).json({ message: "An internal server error occurred" });
+  }
+});
 module.exports = router;
