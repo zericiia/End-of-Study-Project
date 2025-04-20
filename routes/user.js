@@ -1,6 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
-
+const { verifyTokenAndAuthorization, } = require("../middlewares/verifyToken");
 const router = express.Router();
 const { User, validateUpdateUser } = require("../models/user");
 
@@ -8,10 +8,10 @@ const { User, validateUpdateUser } = require("../models/user");
  * @desc  Update User
  * @route /api/user:id
  * @method put
- * @access private
+ * @access private (only admin and the same user)
  *
  **/
-router.put("/:id", async (req, res) => {
+router.put("/:id",verifyTokenAndAuthorization({ roles: ["Admin", "Student"], userIdParam: "id" }), async (req, res) => {
   // Validate ObjectId before querying
   const { id } = req.params;
   if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -63,7 +63,7 @@ router.put("/:id", async (req, res) => {
  * @access private (only admin)
  *
  **/
-router.get("/", async (req, res) => {
+router.get("/",verifyTokenAndAuthorization({ roles: ["Admin"] }), async (req, res) => {
   try {
     const allusers = await User.find().select("-password");
     res.status(200).json(allusers);
@@ -80,7 +80,7 @@ router.get("/", async (req, res) => {
  * @access private (only admin)
  *
  **/
-router.get("/:id", async (req, res) => {
+router.get("/:id",verifyTokenAndAuthorization({ roles: ["Admin"] }), async (req, res) => {
   // Validate ObjectId before querying
   const { id } = req.params;
   if (!mongoose.Types.ObjectId.isValid(id)) {

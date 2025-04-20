@@ -1,76 +1,47 @@
 const jwt = require("jsonwebtoken");
 
-//  verify Token
+//  Verify Token Middleware
 function verifyToken(req, res, next) {
-  // 1. Get token from headers (standard: "Authorization: Bearer <token>")
-  // const authHeader = req.headers.authorization;
-  // console.log(authHeader);
-  
-  // const token = authHeader && authHeader.split(" ")[1]; // Extract token from "Bearer <token>"
-
-  // if (!token) {
-  //   return res.status(401).json({ message: "No token provided" }); // Early return
-  // }
-  // try {
-  //   // 2. Verify token
-  //   const decoded = jwt.verify(token, process.env.JWT_SECRET);
-  //   req.user = decoded; // Attach decoded user data to request
-  //   next(); // Proceed to next middleware
-  // } catch (error) {
-  //   // 3. Handle specific JWT errors 
-  //   if (error.name === "TokenExpiredError") {
-  //     return res.status(401).json({ message: "Token expired" });
-  //   } else if (error.name === "JsonWebTokenError") {
-  //     return res.status(401).json({ message: "Invalid token" });
-  //   } else {
-  //     return res.status(500).json({ message: "Failed to authenticate token" });
-  //   }
-  // }
-
-  // old way
-  const token = req.headers.token;
+  const token = req.cookies.token;
   if (token) {
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       req.user = decoded;
       next();
     } catch (error) {
-      res.status(401).json({ message: "invalid token" });
+      res.status(401).json({ message: "Invalid token" });
     }
   } else {
-    res.status(401).json({ message: "no token provided" });
+    res.status(401).json({ message: "No token provided" });
   }
 }
 
-// Verify Token And Authorize The User
-function verifyTokenAndAuthorizaton(req, res, next) {
-  verifyToken(req, res, () => {
-    if (req.user.id === req.params.id || req.user.isAdmin) {
-      next();
-    } else {
-      return res
-        .status(403)
-        .json({
-          message: `you are not allowed ${req.params.id} -------${req.user.id}`,
+// Generic Authorization Middleware (Handles Roles and Conditions)
+function verifyTokenAndAuthorization(options = {}) {
+  return (req, res, next) => {
+    const { roles = [], userIdParam = "id" } = options;  // roles array and the ID param to check
+
+    verifyToken(req, res, () => {
+      // Check if the user has one of the allowed roles (if any)
+      if (roles.length && !roles.includes(req.user.role)) {
+        return res.status(403).json({
+          message: `Access denied. Required role(s): ${roles.join(", ")}. You have: ${req.user.role}`,
         });
-    }
-  });
-}
-// Verify Token And Admin
-function verifyTokenAndAdmin(req, res, next) {
-  verifyToken(req, res, () => {
-    if (req.user.isAdmin) {
+      }
+
+      // Check if the user is trying to access their own profile or is an admin
+      if (req.user.id !== req.params[userIdParam] && req.user.role !== "Admin") {
+        return res.status(403).json({
+          message: `You are not allowed to access this resource. User ID in params: ${req.params[userIdParam]}. Your ID: ${req.user.id}`,
+        });
+      }
+
       next();
-    } else {
-      // 403 is forbiden
-      return res
-        .status(403)
-        .json({ message: "you are not allowed, only Admins are allowed" });
-    }
-  });
+    });
+  };
 }
+
 module.exports = {
   verifyToken,
-  verifyTokenAndAuthorizaton,
-  verifyTokenAndAdmin,
+  verifyTokenAndAuthorization,
 };
