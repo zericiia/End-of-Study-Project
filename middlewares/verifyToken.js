@@ -21,7 +21,7 @@ function verifyTokenAndStudent(req, res, next) {
     if (req.user.role === "Student") {
       next();
     } else {
-      return res.status(403).json({ message: "Only students can submit proposals" });
+      return res.status(403).json({ message: "Only students are allowed" });
     }
   });
 }

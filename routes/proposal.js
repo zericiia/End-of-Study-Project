@@ -50,13 +50,37 @@ router.post("/:id", verifyTokenAndStudent, async (req, res) => {
   }
 });
 
-// Get All Proposals
-router.get("/", async (req, res) => {
-  const proposals = await Proposal.find()
-    .populate("project", "title")
-    .populate("students", "username email");
-  res.json(proposals);
+/**
+ * @desc  View your own proposal
+ * @route /api/proposals/viewProposal/:id  id(for the student)
+ * @method get
+ * @access private (only admin and the same student)
+ */
+router.get("/viewProposal/:id",verifyTokenAndAuthorization({ roles: ["Admin", "Student"], userIdParam: "id" }), async (req, res) => {
+  try {
+    // Find the proposal by student ID
+    const proposals = await Proposal.find({ students: req.params.id })
+    .populate({
+      path: "project",
+      select: "title description teacher",
+      populate: {
+        path: "teacher",
+        select: "email fullname",
+      },
+    })
+    .populate("students", "username fullname email");
+
+    // Check if the proposal exists
+    if (!proposals || proposals.length === 0) {
+      return res.status(404).json({ message: "No proposals found for this student" });
+    }
+
+    res.json(proposals);  // Send the proposals data
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 });
+
 
 // Update Proposal Status
 router.put("/:id", async (req, res) => {
