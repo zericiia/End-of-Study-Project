@@ -41,7 +41,31 @@ function verifyTokenAndAuthorization(options = {}) {
   };
 }
 
+function verifyTokenAndTeacher(options = {}) {
+  return (req, res, next) => {
+    const { roles = [], userIdParam = "id" } = options;  // roles array and the ID param to check
+
+    verifyToken(req, res, () => {
+      // Check if the user has one of the allowed roles (if any)
+      if (roles.length && !roles.includes(req.user.role)) {
+        return res.status(403).json({
+          message: `Access denied. Required role(s): ${roles.join(", ")}. You have: ${req.user.role}`,
+        });
+      }
+
+      // Check if the user is trying to access their own profile or is an admin
+      // if (req.user.id !== req.params[userIdParam] && req.user.role !== "Admin") {
+      //   return res.status(403).json({
+      //     message: `You are not allowed to access this resource. User ID in params: ${req.params[userIdParam]}. Your ID: ${req.user.id}`,
+      //   });
+      // }
+
+      next();
+    });
+  };
+}
 module.exports = {
   verifyToken,
   verifyTokenAndAuthorization,
+  verifyTokenAndTeacher,
 };
