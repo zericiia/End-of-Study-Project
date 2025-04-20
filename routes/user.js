@@ -11,7 +11,7 @@ const { User, validateUpdateUser } = require("../models/user");
  * @access private (only admin and the same user)
  *
  **/
-router.put("/:id",verifyTokenAndAuthorization({ roles: ["Admin", "Student"], userIdParam: "id" }), async (req, res) => {
+router.put("/:id",verifyTokenAndAuthorization({ roles: ["Admin", "Student","Teacher"], userIdParam: "id" }), async (req, res) => {
   // Validate ObjectId before querying
   const { id } = req.params;
   if (!mongoose.Types.ObjectId.isValid(id)) {
