@@ -28,9 +28,18 @@ function validateProject(obj) {
   const schema = Joi.object({
     title: Joi.string().min(3).max(100).required(),
     description: Joi.string().min(10).required(),
-    teacher: Joi.string().required(), // ObjectId as string
+    // teacher: Joi.string().required(), // ObjectId as string
+  });
+  return schema.validate(obj);
+}
+// Joi Validation
+function validateUpdateProject(obj) {
+  const schema = Joi.object({
+    title: Joi.string().min(3).max(100),
+    description: Joi.string().min(10)
+    // teacher: Joi.string().required(), // ObjectId as string
   });
   return schema.validate(obj);
 }
 
-module.exports = { Project, validateProject };
+module.exports = { Project, validateProject,validateUpdateProject };
