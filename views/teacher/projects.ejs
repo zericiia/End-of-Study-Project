@@ -1,0 +1,51 @@
+
+
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-gray-800">إدارة المشاريع</h1>
+    <a href="/teacher/projects/new" class="inline-block bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700">
+        <i class="fas fa-plus ml-1"></i> إضافة مشروع جديد
+    </a>
+</div>
+
+<% if (projects.length === 0) { %>
+    <div class="bg-white rounded-lg shadow-md p-8 text-center">
+        <i class="fas fa-folder-open text-gray-300 text-5xl mb-4"></i>
+        <h3 class="text-xl font-medium text-gray-700">لم تقم بإضافة أي مشاريع بعد</h3>
+        <p class="text-gray-500 mt-2 mb-6">قم بإضافة مشروع جديد ليتمكن الطلاب من تقديم مقترحاتهم</p>
+        <a href="/teacher/projects/new" class="inline-block bg-green-600 text-white py-2 px-6 rounded-md hover:bg-green-700">إضافة مشروع جديد</a>
+    </div>
+<% } else { %>
+    <div class="grid grid-cols-1 gap-6">
+        <% projects.forEach(project => { %>
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="p-6">
+                    <div class="flex justify-between items-start">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-2"><%= project.title %></h2>
+                        <div class="flex space-x-2">
+                            <a href="/teacher/projects/edit/<%= project._id %>" class="text-yellow-600 hover:text-yellow-800 ml-4">
+                                <i class="fas fa-edit ml-1"></i> تعديل
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <p class="text-gray-600 mb-4"><%= project.description.substring(0, 200) %>...</p>
+                    
+                    <div class="flex justify-between items-center">
+                        <div class="text-sm text-gray-500">
+                            <i class="fas fa-calendar-alt ml-1"></i>
+                            تاريخ الإضافة: <%= new Date(project.createdAt).toLocaleDateString('ar-SA') %>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <span class="text-sm text-gray-600 ml-2">المقترحات:</span>
+                            <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full"><%= project.proposalCount || 0 %></span>
+                            <a href="/teacher/projects/<%= project._id %>/proposals" class="text-blue-600 hover:text-blue-800 mr-4">
+                                <i class="fas fa-eye ml-1"></i> عرض المقترحات
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <% }) %>
+    </div>
+<% } %>

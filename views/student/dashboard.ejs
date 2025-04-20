@@ -1,0 +1,60 @@
+
+
+<div class="bg-white rounded-lg shadow-md p-6 mb-6">
+    <h1 class="text-2xl font-bold text-gray-800 mb-4">مرحباً، <%= user.fullname %></h1>
+    <p class="text-gray-600">مرحباً بك في نظام اختيار مشاريع التخرج. يمكنك من هنا استعراض المشاريع المتاحة وتقديم مقترحاتك.</p>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-semibold text-gray-800">المشاريع المتاحة</h2>
+            <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full"><%= projectsCount %></span>
+        </div>
+        <p class="text-gray-600 mb-4">استعرض المشاريع المتاحة للاختيار</p>
+        <a href="/projects" class="inline-block bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700">عرض المشاريع</a>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-semibold text-gray-800">مقترحاتي</h2>
+            <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full"><%= proposalsCount %></span>
+        </div>
+        <p class="text-gray-600 mb-4">استعرض وإدارة مقترحاتك المقدمة</p>
+        <a href="/student/proposals" class="inline-block bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700">عرض المقترحات</a>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-semibold text-gray-800">الاختيار النهائي</h2>
+            <% if (hasAcceptedProposals) { %>
+                <span class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded-full">متاح</span>
+            <% } else { %>
+                <span class="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded-full">غير متاح</span>
+            <% } %>
+        </div>
+        <p class="text-gray-600 mb-4">اختر مشروعك النهائي من المقترحات المقبولة</p>
+        <a href="/student/final-selection" class="inline-block bg-yellow-600 text-white py-2 px-4 rounded-md hover:bg-yellow-700 <%= !hasAcceptedProposals ? 'opacity-50 cursor-not-allowed' : '' %>">
+            الاختيار النهائي
+        </a>
+    </div>
+</div>
+
+<div class="mt-8">
+    <h2 class="text-xl font-semibold text-gray-800 mb-4">آخر المشاريع المضافة</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <% latestProjects.forEach(project => { %>
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2"><%= project.title %></h3>
+                    <p class="text-gray-600 mb-4"><%= project.description.substring(0, 100) %>...</p>
+                    <div class="flex items-center text-sm text-gray-500 mb-4">
+                        <i class="fas fa-user-tie ml-2"></i>
+                        <span><%= project.teacher.fullname %></span>
+                    </div>
+                    <a href="/projects/<%= project._id %>" class="inline-block bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700">التفاصيل</a>
+                </div>
+            </div>
+        <% }) %>
+    </div>
+</div>

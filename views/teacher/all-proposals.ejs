@@ -1,0 +1,61 @@
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-gray-800">جميع مقترحات الطلاب</h1>
+</div>
+
+<% if (projectsWithProposals.length === 0 || projectsWithProposals.every(p => p.proposals.length === 0)) { %>
+    <div class="bg-white rounded-lg shadow-md p-8 text-center">
+        <i class="fas fa-file-alt text-gray-300 text-5xl mb-4"></i>
+        <h3 class="text-xl font-medium text-gray-700">لا توجد مقترحات للمشاريع الخاصة بك</h3>
+        <p class="text-gray-500 mt-2">سيظهر هنا مقترحات الطلاب عندما يتم تقديمها</p>
+    </div>
+<% } else { %>
+    <% projectsWithProposals.forEach(project => { %>
+        <% if (project.proposals.length > 0) { %>
+            <div class="bg-white rounded-lg shadow-md overflow-hidden mb-6">
+                <div class="bg-gray-50 p-4 border-b">
+                    <h2 class="text-xl font-semibold text-gray-800"><%= project.title %></h2>
+                </div>
+                
+                <div class="p-4">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الطالب</th>
+                                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">تاريخ التقديم</th>
+                                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الحالة</th>
+                                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <% project.proposals.forEach(proposal => { %>
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm font-medium text-gray-900"><%= proposal.students[0].fullname %></div>
+                                            <div class="text-sm text-gray-500"><%= proposal.students[0].email %></div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-500"><%= new Date(proposal.createdAt).toLocaleDateString('ar-SA') %></div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <% if (proposal.status === 'pending') { %>
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">قيد الانتظار</span>
+                                            <% } else if (proposal.status === 'accepted') { %>
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">مقبول</span>
+                                            <% } else { %>
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">مرفوض</span>
+                                            <% } %>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                            <a href="/teacher/proposals/<%= proposal._id %>" class="text-blue-600 hover:text-blue-900 ml-2">عرض</a>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        <% } %>
+    <% }) %>
+<% } %>

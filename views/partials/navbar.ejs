@@ -1,0 +1,37 @@
+<nav class="bg-white shadow-md">
+    <div class="container mx-auto px-4">
+        <div class="flex justify-between items-center py-4">
+            <div class="flex items-center">
+                <a href="<%= user.role === 'Teacher' ? '/teacher/dashboard' : user.role === 'Student' ? '/student/dashboard' : user.role === 'Admin' ? '/admin/dashboard' : '/' %>" class="text-xl font-bold text-gray-800">نظام اختيار مشاريع التخرج</a>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <% if (user.role === 'Teacher') { %>
+                    <a href="/teacher/dashboard" class="text-gray-600 hover:text-gray-900 ml-4">لوحة التحكم</a>
+                    <a href="/teacher/projects" class="text-gray-600 hover:text-gray-900 ml-4">المشاريع</a>
+                    <a href="/teacher/proposals" class="text-gray-600 hover:text-gray-900 ml-4">المقترحات</a>
+                <% } else if (user.role === 'Student') { %>
+                    <a href="/student/dashboard" class="text-gray-600 hover:text-gray-900 ml-4">لوحة التحكم</a>
+                    <a href="/projects" class="text-gray-600 hover:text-gray-900 ml-4">المشاريع المتاحة</a>
+                    <a href="/student/proposals" class="text-gray-600 hover:text-gray-900 ml-4">مقترحاتي</a>
+                    <a href="/student/final-selection" class="text-gray-600 hover:text-gray-900 ml-4">الاختيار النهائي</a>
+                <% } else if (user.role === 'Admin') { %>
+                    <a href="/admin/dashboard" class="text-gray-600 hover:text-gray-900 ml-4">لوحة التحكم</a>
+                    <a href="/admin/users" class="text-gray-600 hover:text-gray-900 ml-4">المستخدمين</a>
+                    <a href="/admin/projects" class="text-gray-600 hover:text-gray-900 ml-4">المشاريع</a>
+                <% } %>
+                
+                <div class="relative group">
+                    <button class="flex items-center text-gray-600 hover:text-gray-900 focus:outline-none">
+                        <span class="ml-2"><%= user.fullname %></span>
+                        <i class="fas fa-user-circle text-xl"></i>
+                    </button>
+                    <div class="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 ease-in-out transform group-hover:translate-y-0 translate-y-1">
+                        <a href="/profile" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors duration-150">الملف الشخصي</a>
+                        <a href="/logout" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors duration-150">تسجيل الخروج</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>

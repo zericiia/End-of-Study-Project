@@ -1,0 +1,74 @@
+
+
+<div class="bg-white rounded-lg shadow-md p-6 mb-6">
+    <h1 class="text-2xl font-bold text-gray-800 mb-4">مرحباً، <%= user.fullname %></h1>
+    <p class="text-gray-600">مرحباً بك في نظام اختيار مشاريع التخرج. يمكنك من هنا إدارة مشاريعك ومراجعة مقترحات الطلاب.</p>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-semibold text-gray-800">مشاريعي</h2>
+            <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full"><%= projectsCount %></span>
+        </div>
+        <p class="text-gray-600 mb-4">إدارة المشاريع الخاصة بك</p>
+        <div class="flex space-x-4">
+            <a href="/teacher/projects" class="inline-block bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 ml-2">عرض المشاريع</a>
+            <a href="/teacher/projects/new" class="inline-block bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700">إضافة مشروع جديد</a>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-semibold text-gray-800">مقترحات الطلاب</h2>
+            <span class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded-full"><%= pendingProposalsCount %></span>
+        </div>
+        <p class="text-gray-600 mb-4">مراجعة وإدارة مقترحات الطلاب لمشاريعك</p>
+        <a href="/teacher/proposals" class="inline-block bg-yellow-600 text-white py-2 px-4 rounded-md hover:bg-yellow-700">عرض المقترحات</a>
+    </div>
+</div>
+
+<div class="mt-8">
+    <h2 class="text-xl font-semibold text-gray-800 mb-4">آخر المقترحات المقدمة</h2>
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">المشروع</th>
+                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الطالب</th>
+                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">تاريخ التقديم</th>
+                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الحالة</th>
+                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                <% latestProposals.forEach(proposal => { %>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-gray-900"><%= proposal.project.title %></div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900"><%= proposal.students[0].fullname %></div>
+                            <div class="text-sm text-gray-500"><%= proposal.students[0].email %></div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-500"><%= new Date(proposal.createdAt).toLocaleDateString('ar-SA') %></div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <% if (proposal.status === 'pending') { %>
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">قيد الانتظار</span>
+                            <% } else if (proposal.status === 'accepted') { %>
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">مقبول</span>
+                            <% } else { %>
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">مرفوض</span>
+                            <% } %>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <a href="/teacher/proposals/<%= proposal._id %>" class="text-blue-600 hover:text-blue-900 ml-2">عرض</a>
+                        </td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -10,7 +10,7 @@ const {
 
 /**
  * @desc  create project
- * @route api/projects/:id
+ * @route api/projects/:id   id(for teacher)
  * @method post
  * @access private (only admin and the same teacher)
  *

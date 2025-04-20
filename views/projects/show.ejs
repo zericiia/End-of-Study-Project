@@ -1,0 +1,97 @@
+
+<div class="bg-white rounded-lg shadow-md overflow-hidden">
+    <div class="p-6">
+        <div class="flex justify-between items-start mb-6">
+            <h1 class="text-2xl font-bold text-gray-800"><%= project.title %></h1>
+            <% if (user.role === 'Teacher' && project.teacher._id.toString() === user.id) { %>
+                <div class="flex space-x-2">
+                    <a href="/teacher/projects/edit/<%= project._id %>" class="inline-block bg-yellow-500 text-white py-1 px-3 rounded-md hover:bg-yellow-600 ml-2">
+                        <i class="fas fa-edit ml-1"></i> تعديل
+                    </a>
+                </div>
+            <% } %>
+        </div>
+        
+        <div class="mb-6">
+            <div class="flex items-center text-sm text-gray-500 mb-2">
+                <i class="fas fa-user-tie ml-2"></i>
+                <span>المدرس: <%= project.teacher.fullname %></span>
+            </div>
+            <div class="flex items-center text-sm text-gray-500">
+                <i class="fas fa-calendar-alt ml-2"></i>
+                <span>تاريخ الإضافة: <%= new Date(project.createdAt).toLocaleDateString('ar-SA') %></span>
+            </div>
+        </div>
+        
+        <div class="border-t border-gray-200 pt-4">
+            <h2 class="text-lg font-semibold text-gray-800 mb-2">وصف المشروع</h2>
+            <p class="text-gray-600 whitespace-pre-line"><%= project.description %></p>
+        </div>
+        
+        <% if (user.role === 'Student') { %>
+            <div class="mt-8 border-t border-gray-200 pt-6">
+                <% if (hasProposal) { %>
+                    <div class="bg-blue-50 border border-blue-200 rounded-md p-4 mb-4">
+                        <p class="text-blue-700">لقد قمت بالفعل بتقديم مقترح لهذا المشروع.</p>
+                        <a href="/student/proposals" class="text-blue-600 hover:underline">عرض مقترحاتي</a>
+                    </div>
+                <% } else if (proposalCount >= 3) { %>
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-md p-4 mb-4">
+                        <p class="text-yellow-700">لقد وصلت إلى الحد الأقصى من المقترحات (3 مقترحات).</p>
+                        <a href="/student/proposals" class="text-yellow-600 hover:underline">إدارة مقترحاتي الحالية</a>
+                    </div>
+                <% } else { %>
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4">تقديم مقترح</h2>
+                    <form id="proposalForm" class="space-y-4">
+                        <div>
+                            <label for="message" class="block text-sm font-medium text-gray-700 mb-1">رسالة للمدرس (اختياري)</label>
+                            <textarea id="message" name="message" rows="4" 
+                                class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="اكتب رسالة توضح فيها سبب اهتمامك بهذا المشروع..."></textarea>
+                        </div>
+                        
+                        <div id="errorMessage" class="text-red-500 text-sm hidden"></div>
+                        
+                        <button type="submit" 
+                            class="bg-green-600 text-white py-2 px-6 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+                            تقديم المقترح
+                        </button>
+                    </form>
+                <% } %>
+            </div>
+            
+            <script>
+            document.getElementById('proposalForm')?.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const message = document.getElementById('message').value;
+                const errorMessage = document.getElementById('errorMessage');
+                
+                try {
+                    const response = await fetch('/api/proposals/<%= project._id %>', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ message })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (!response.ok) {
+                        errorMessage.textContent = data.message || 'حدث خطأ أثناء تقديم المقترح';
+                        errorMessage.classList.remove('hidden');
+                        return;
+                    }
+                    
+                    // Redirect to student proposals page
+                    window.location.href = '/student/proposals';
+                } catch (error) {
+                    errorMessage.textContent = 'حدث خطأ في الاتصال بالخادم';
+                    errorMessage.classList.remove('hidden');
+                }
+            });
+            </script>
+        <% } %>
+    </div>
+</div>

@@ -1,0 +1,137 @@
+<div class="bg-white rounded-lg shadow-md p-6 mb-6">
+    <h1 class="text-2xl font-bold text-gray-800 mb-4">الاختيار النهائي للمشروع</h1>
+    <p class="text-gray-600">اختر المشروع النهائي الذي ترغب في العمل عليه من بين المقترحات المقبولة.</p>
+</div>
+
+<% if (acceptedProposals.length === 0) { %>
+    <div class="bg-white rounded-lg shadow-md p-8 text-center">
+        <i class="fas fa-exclamation-circle text-yellow-400 text-5xl mb-4"></i>
+        <h3 class="text-xl font-medium text-gray-700">لا توجد مقترحات مقبولة</h3>
+        <p class="text-gray-500 mt-2 mb-6">لم يتم قبول أي من مقترحاتك بعد. يرجى الانتظار حتى يقوم المدرسون بمراجعة مقترحاتك.</p>
+        <a href="/student/proposals" class="inline-block bg-blue-600 text-white py-2 px-6 rounded-md hover:bg-blue-700">عرض مقترحاتي</a>
+    </div>
+<% } else if (hasSelectedProject && selectedProject) { %>
+    <div class="bg-white rounded-lg shadow-md p-8">
+        <div class="text-center mb-6">
+            <i class="fas fa-check-circle text-green-500 text-5xl mb-4"></i>
+            <h3 class="text-xl font-medium text-gray-700">تم اختيار المشروع النهائي</h3>
+            <p class="text-gray-500 mt-2">لقد قمت باختيار مشروعك النهائي بنجاح</p>
+        </div>
+        
+        <div class="border-t border-gray-200 pt-6 mt-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">المشروع المختار:</h3>
+            <div class="bg-gray-50 rounded-lg p-6">
+                <h4 class="text-xl font-semibold text-gray-800 mb-2"><%= selectedProject.title %></h4>
+                <p class="text-gray-600 mb-4"><%= selectedProject.description.substring(0, 200) %>...</p>
+                <div class="flex items-center text-sm text-gray-500">
+                    <i class="fas fa-user-tie ml-2"></i>
+                    <span>المدرس: <%= selectedProject.teacher.fullname %></span>
+                </div>
+            </div>
+        </div>
+    </div>
+<% } else { %>
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">المقترحات المقبولة</h2>
+        <p class="text-gray-600 mb-6">اختر واحداً من المشاريع التالية كمشروعك النهائي:</p>
+        
+        <form id="finalSelectionForm" class="space-y-6">
+            <div class="grid grid-cols-1 gap-4">
+                <% acceptedProposals.forEach(proposal => { %>
+                    <div class="border border-gray-200 rounded-lg p-4 hover:border-blue-500 transition-colors">
+                        <label class="flex items-start cursor-pointer">
+                            <input type="radio" name="selectedProject" value="<%= proposal.project._id %>" class="mt-1 ml-3">
+                            <div>
+                                <h3 class="text-lg font-medium text-gray-800 mb-1"><%= proposal.project.title %></h3>
+                                <p class="text-gray-600 mb-2"><%= proposal.project.description.substring(0, 150) %>...</p>
+                                <div class="flex items-center text-sm text-gray-500">
+                                    <i class="fas fa-user-tie ml-2"></i>
+                                    <span>المدرس: <%= proposal.project.teacher.fullname %></span>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                <% }) %>
+            </div>
+            
+            <div id="errorMessage" class="text-red-500 text-sm hidden"></div>
+            
+            <div class="flex justify-end">
+                <button type="submit" 
+                    class="bg-green-600 text-white py-2 px-6 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+                    تأكيد الاختيار النهائي
+                </button>
+            </div>
+        </form>
+    </div>
+<% } %>
+
+<script>
+// Convert server-side proposals data to client-side
+const proposalsData = [
+    <% acceptedProposals.forEach(proposal => { %>
+        {
+            _id: '<%= proposal._id %>',
+            project: {
+                _id: '<%= proposal.project._id %>',
+                title: '<%= proposal.project.title.replace(/'/g, "\\'") %>',
+                description: '<%= proposal.project.description.replace(/'/g, "\\'") %>',
+                teacher: {
+                    fullname: '<%= proposal.project.teacher.fullname.replace(/'/g, "\\'") %>'
+                }
+            }
+        },
+    <% }) %>
+];
+
+document.getElementById('finalSelectionForm')?.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const selectedProjectElement = document.querySelector('input[name="selectedProject"]:checked');
+    const errorMessage = document.getElementById('errorMessage');
+    
+    if (!selectedProjectElement) {
+        errorMessage.textContent = 'يرجى اختيار مشروع';
+        errorMessage.classList.remove('hidden');
+        return;
+    }
+    
+    const projectId = selectedProjectElement.value;
+    
+    try {
+        const response = await fetch('/api/final-selections', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${document.cookie.split('token=')[1]}`
+            },
+            body: JSON.stringify({
+                studentGroup: ['<%= user.id %>'],
+                selectedProject: projectId
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+            errorMessage.textContent = data.message || 'حدث خطأ أثناء تأكيد الاختيار النهائي';
+            errorMessage.classList.remove('hidden');
+            return;
+        }
+        
+        // Show success message and reload after a short delay
+        errorMessage.textContent = 'تم اختيار المشروع بنجاح';
+        errorMessage.classList.remove('hidden');
+        errorMessage.classList.remove('text-red-500');
+        errorMessage.classList.add('text-green-500');
+        
+        setTimeout(() => {
+            window.location.reload();
+        }, 1500);
+    } catch (error) {
+        console.error('Error submitting final selection:', error);
+        errorMessage.textContent = 'حدث خطأ في الاتصال بالخادم';
+        errorMessage.classList.remove('hidden');
+    }
+});
+</script>
