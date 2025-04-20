@@ -82,26 +82,48 @@ router.get("/viewProposal/:id",verifyTokenAndAuthorization({ roles: ["Admin", "S
 });
 
 
-// Update Proposal Status
-router.put("/:id", async (req, res) => {
-  const allowedStatuses = ["pending", "accepted", "declined"];
-  const { status } = req.body;
-  if (!allowedStatuses.includes(status)) {
-    return res.status(400).json({ message: "Invalid status value" });
-  }
+/**
+ * @desc  Update your own proposal
+ * @route PUT /api/proposals/:proposalId
+ * * @method put
+ * @access Private (only the student who submitted it)
+ */
+router.put(
+  "/:proposalId",
+  verifyTokenAndStudent,
+  async (req, res) => {
+    try {
+      const { proposalId } = req.params;
 
-  try {
-    const proposal = await Proposal.findByIdAndUpdate(
-      req.params.id,
-      { status },
-      { new: true }
-    );
-    if (!proposal)
-      return res.status(404).json({ message: "Proposal not found" });
-    res.json(proposal);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+      // Find the proposal first
+      const proposal = await Proposal.findById(proposalId);
+      if (!proposal) {
+        return res.status(404).json({ message: "Proposal not found" });
+      }
+
+      // Check if the logged-in student is part of the proposal
+      if (!proposal.students.includes(req.user.id)) {
+        return res.status(403).json({ message: "You are not allowed to update this proposal" });
+      }
+
+      // Optional: validate the updated data
+      const { error } = validateProposal(req.body);
+      if (error) {
+        return res.status(400).json({ message: error.details[0].message });
+      }
+
+      // Update only allowed fields
+      if (req.body.message !== undefined) proposal.message = req.body.message;
+      if (req.body.project !== undefined) proposal.project = req.body.project;
+
+      await proposal.save();
+
+      res.json({ message: "Proposal updated successfully", proposal });
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
   }
-});
+);
+
 
 module.exports = router;
