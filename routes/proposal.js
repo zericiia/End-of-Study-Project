@@ -95,7 +95,7 @@ router.put(
     try {
       const { proposalId } = req.params;
 
-      // Find the proposal first
+      // Find the proposal 
       const proposal = await Proposal.findById(proposalId);
       if (!proposal) {
         return res.status(404).json({ message: "Proposal not found" });
@@ -106,7 +106,7 @@ router.put(
         return res.status(403).json({ message: "You are not allowed to update this proposal" });
       }
 
-      // Optional: validate the updated data
+      // 
       const { error } = validateProposal(req.body);
       if (error) {
         return res.status(400).json({ message: error.details[0].message });
@@ -119,6 +119,36 @@ router.put(
       await proposal.save();
 
       res.json({ message: "Proposal updated successfully", proposal });
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  }
+);
+/**
+ * @desc  Delete your own proposal
+ * @route DELETE /api/proposals/:proposalId
+   @method delete
+ * @access Private (only the student who submitted it or Admin)
+ */
+router.delete(
+  "/:proposalId",
+  verifyTokenAndStudent,
+  async (req, res) => {
+    try {
+      const { proposalId } = req.params;
+
+      const proposal = await Proposal.findById(proposalId);
+      if (!proposal) {
+        return res.status(404).json({ message: "Proposal not found" });
+      }
+
+      // check if the logged-in student is part of the proposal
+      if (!proposal.students.includes(req.user.id)) {
+        return res.status(403).json({ message: "You are not allowed to delete this proposal" });
+      }
+
+      await Proposal.findByIdAndDelete(proposalId);
+      res.json({ message: "Proposal deleted successfully" });
     } catch (err) {
       res.status(500).json({ message: err.message });
     }
