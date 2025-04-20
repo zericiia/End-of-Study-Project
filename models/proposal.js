@@ -32,10 +32,10 @@ const Proposal = mongoose.model("Proposal", proposalSchema);
 // Joi Validation
 function validateProposal(obj) {
   const schema = Joi.object({
-    project: Joi.string().required(),
-    students: Joi.array().items(Joi.string()).min(1).max(2).required(),
+   // project: Joi.string().required(),
+   // students: Joi.array().items(Joi.string()).min(1).max(2).required(),
     message: Joi.string().allow("").max(1000),
-    status: Joi.string().valid("pending", "accepted", "declined"),
+    // status: Joi.string().valid("pending", "accepted", "declined"),
   });
   return schema.validate(obj);
 }

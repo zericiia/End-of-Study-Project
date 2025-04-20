@@ -15,6 +15,16 @@ function verifyToken(req, res, next) {
     res.status(401).json({ message: "No token provided" });
   }
 }
+// verify if student or admin 
+function verifyTokenAndStudent(req, res, next) {
+  verifyToken(req, res, () => {
+    if (req.user.role === "Student") {
+      next();
+    } else {
+      return res.status(403).json({ message: "Only students can submit proposals" });
+    }
+  });
+}
 
 // Generic Authorization Middleware (Handles Roles and Conditions)
 function verifyTokenAndAuthorization(options = {}) {
@@ -68,4 +78,6 @@ module.exports = {
   verifyToken,
   verifyTokenAndAuthorization,
   verifyTokenAndTeacher,
+  verifyTokenAndStudent,
+
 };
