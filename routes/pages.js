@@ -10,25 +10,40 @@ const jwt = require("jsonwebtoken");
 
 // Login page (root route)
 router.get("/", (req, res) => {
+  console.log("Root route accessed");
+  console.log("Token present:", !!req.cookies.token);
+  
   // If user is already logged in, redirect based on role
-   if (req.cookies.token) {
+  if (req.cookies.token) {
     try {
+      console.log("Token found, attempting to verify");
       const decoded = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
+      console.log("Token decoded successfully:", decoded);
+      console.log("User role:", decoded.role);
+      
+      // Store user info in request for middleware
+      req.user = decoded;
+      
       if (decoded.role === "Teacher") {
+        console.log("Redirecting to teacher dashboard");
         return res.redirect("/teacher/dashboard");
       } else if (decoded.role === "Student") {
+        console.log("Redirecting to student dashboard");
         return res.redirect("/student/dashboard");
       } else if (decoded.role === "Admin") {
+        console.log("Redirecting to admin dashboard");
         return res.redirect("/admin/dashboard");
       }
     } catch (error) {
+      console.log("Token verification failed:", error.message);
       // If token is invalid, clear it and show login page
       res.clearCookie("token");
     }
   }
   
+  console.log("Rendering login page");
   // Otherwise show login page
-  res.render("index");
+  res.render("index", { title: 'تسجيل الدخول' });
 });
 
 // Middleware to check if user is logged in
