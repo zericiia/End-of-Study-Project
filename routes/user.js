@@ -1,5 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
 const { verifyTokenAndAuthorization, } = require("../middlewares/verifyToken");
 const router = express.Router();
 const { User, validateUpdateUser } = require("../models/user");
@@ -41,19 +42,22 @@ router.put("/:id",verifyTokenAndAuthorization({ roles: ["Admin", "Student","Teac
     const UpdatedUser = await User.findByIdAndUpdate(
       id,
       {
-        // $set: {
-        //   email: req.body.email,
-        //   fullname: req.body.fullname,
-        //   username: req.body.username,
-        //   password: req.body.password,
-        // },
         $set: req.body,
       },
-      { new: true }
+      { new: true, runValidators: true }
     ).select("-password");
+
+    if (!UpdatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
     res.status(200).json(UpdatedUser);
   } catch (error) {
-    res.status(500).json({ message: "Update failed" });
+    console.error("Update error:", error);
+    res.status(500).json({ 
+      message: "Update failed",
+      error: error.message 
+    });
   }
 });
 /**
