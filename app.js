@@ -31,9 +31,9 @@ app.use(logger);
 app.use(express.urlencoded({ extended: false }));
 
 // Login route form
-app.get("/", (req, res) => {
-  res.render("index", { title: 'تسجيل الدخول' });
-});
+// app.get("/", (req, res) => {
+//   res.render("index", { title: 'تسجيل الدخول' });
+// });
 
 // API Routes
 app.use("/api/user", require("./routes/user"));
@@ -42,7 +42,7 @@ app.use("/api/proposals", require("./routes/proposal"));
 app.use("/api/final-selections", require("./routes/finalSelection"));
 app.use("/api/auth", require("./routes/auth"));
 
-// Page Routes (excluding root)
+// Page Routes (including root)
 app.use("/", require("./routes/pages"));
 
 // Error handler middleware
